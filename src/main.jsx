@@ -5,19 +5,23 @@
 //   npm install react-router-dom
 // ----------------------------------------------------------------
 
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import App from './App';           // Your existing public site
-import AdminApp from './admin/AdminApp';
-import './index.css';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import App from "./App"; // Your existing public site
+import JoinUs from "./JoinUs";
+import PartnerWithUs from "./PartnerWithUs";
+import AdminApp from "./admin/AdminApp";
+import "./index.css";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         {/* Public website */}
         <Route path="/" element={<App />} />
+        <Route path="/join" element={<JoinUs />} />
+        <Route path="/partner" element={<PartnerWithUs />} />
 
         {/* Admin dashboard — protected by Supabase auth inside AdminApp */}
         <Route path="/admin/*" element={<AdminApp />} />
@@ -26,5 +30,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="*" element={<App />} />
       </Routes>
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
