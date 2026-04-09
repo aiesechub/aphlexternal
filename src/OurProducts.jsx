@@ -2,12 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Heart, Briefcase, BookOpen, Menu, X, PlaneLanding, 
-  PlaneTakeoff, ArrowRight, Sparkles, Search, MapPin, ExternalLink, Filter
+  PlaneTakeoff, ArrowRight, Sparkles, Search, MapPin, ExternalLink, Filter, Loader2
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { createClient } from "@supabase/supabase-js";
 
 // Asset imports
 import aiesecWhiteLogo from "./assets/logos/aiesec-white-logo.png";
+
+// Supabase client
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 const Navbar = ({ currentPage = "AIESEC Products" }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -130,7 +137,7 @@ const programsData = [
     title: "Global Volunteer",
     shortTitle: "Volunteer",
     trait: "Bayanihan",
-    color: "#EF3340", // Red
+    color: "#EF3340",
     icon: Heart,
     incoming: {
       title: "Come to the Philippines",
@@ -147,7 +154,7 @@ const programsData = [
     title: "Global Talent",
     shortTitle: "Talent",
     trait: "Diskarte",
-    color: "#52BCC6", // Teal
+    color: "#52BCC6",
     icon: Briefcase,
     incoming: {
       title: "Intern in the Philippines",
@@ -164,7 +171,7 @@ const programsData = [
     title: "Global Teacher",
     shortTitle: "Teacher",
     trait: "Pag-aaruga",
-    color: "#F58220", // Orange
+    color: "#F58220",
     icon: BookOpen,
     incoming: {
       title: "Teach in the Philippines",
@@ -179,31 +186,67 @@ const programsData = [
   },
 ];
 
-// Mock Database Content
-const mockOpportunities = [
-  { id: 1, title: "English Teaching Assistant", location: "Tokyo, Japan", program: "Teacher", direction: "Outgoing", link: "#" },
-  { id: 2, title: "Business Development Intern", location: "Manila, Philippines", program: "Talent", direction: "Incoming", link: "#" },
-  { id: 3, title: "Coastal Conservation Project", location: "Cebu, Philippines", program: "Volunteer", direction: "Incoming", link: "#" },
-  { id: 4, title: "Software Engineer", location: "Berlin, Germany", program: "Talent", direction: "Outgoing", link: "#" },
-  { id: 5, title: "Primary School Educator", location: "Bogotá, Colombia", program: "Teacher", direction: "Outgoing", link: "#" },
-  { id: 6, title: "Community Healthcare Assistant", location: "Palawan, Philippines", program: "Volunteer", direction: "Incoming", link: "#" },
-  { id: 7, title: "Marketing Specialist", location: "Singapore", program: "Talent", direction: "Outgoing", link: "#" },
-  { id: 8, title: "Youth Leadership Facilitator", location: "Bangkok, Thailand", program: "Volunteer", direction: "Outgoing", link: "#" },
-  { id: 9, title: "Language & Culture Instructor", location: "Quezon City, Philippines", program: "Teacher", direction: "Incoming", link: "#" },
-];
+// program_id → shortTitle mapping (adjust IDs to match your DB)
+const PROGRAM_ID_MAP = {
+  1: "Volunteer",
+  2: "Talent",
+  3: "Teacher",
+};
 
 export default function OurProducts() {
   const [activeTab, setActiveTab] = useState(0);
-  
+
   // Database Filters States
-  const [dbProgramFilter, setDbProgramFilter] = useState("Volunteer"); // "All", "Volunteer", "Talent", "Teacher"
-  const [dbDirectionFilter, setDbDirectionFilter] = useState("All"); // "All", "Incoming", "Outgoing"
+  const [dbProgramFilter, setDbProgramFilter] = useState("Volunteer");
+  const [dbDirectionFilter, setDbDirectionFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Supabase data states
+  const [opportunities, setOpportunities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const activeProgram = programsData[activeTab];
   const databaseRef = useRef(null);
   const location = useLocation();
 
+  // Fetch opportunities from Supabase
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, error: sbError } = await supabase
+          .from("opportunities")
+          .select("opportunity_id, title, location, direction, external_link, program_id")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false });
+
+        if (sbError) throw sbError;
+
+        // Normalize data to match the shape the UI expects
+        const normalized = (data || []).map((row) => ({
+          id: row.opportunity_id,
+          title: row.title,
+          location: row.location,
+          direction: row.direction,
+          link: row.external_link || "#",
+          program: PROGRAM_ID_MAP[row.program_id] ?? "Volunteer",
+        }));
+
+        setOpportunities(normalized);
+      } catch (err) {
+        console.error("Error fetching opportunities:", err);
+        setError("Failed to load opportunities. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOpportunities();
+  }, []);
+
+  // Sync URL query params
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const programQuery = searchParams.get("program");
@@ -246,18 +289,17 @@ export default function OurProducts() {
   const handleActionClick = (direction) => {
     setDbProgramFilter(activeProgram.shortTitle);
     setDbDirectionFilter(direction);
-    // Smooth scroll to database
     databaseRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Filter Logic for Database
-  const filteredOpportunities = mockOpportunities.filter((opp) => {
+  // Filter Logic
+  const filteredOpportunities = opportunities.filter((opp) => {
     const matchesProgram = dbProgramFilter === "All" || opp.program === dbProgramFilter;
     const matchesDirection = dbDirectionFilter === "All" || opp.direction === dbDirectionFilter;
-    const matchesSearch = 
-      opp.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch =
+      opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       opp.location.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
     return matchesProgram && matchesDirection && matchesSearch;
   });
 
@@ -302,7 +344,7 @@ export default function OurProducts() {
                 className="relative group outline-none"
               >
                 <div className="absolute inset-0 translate-x-[4px] translate-y-[4px] bg-black rounded-xl transition-transform" />
-                <div 
+                <div
                   className={`relative border-4 border-black px-6 py-3 rounded-xl font-barabara text-sm md:text-base uppercase tracking-widest transition-all duration-300 flex items-center gap-2 ${
                     isActive ? "-translate-y-1 -translate-x-1 text-white" : "bg-white text-black hover:-translate-y-1 hover:-translate-x-1"
                   }`}
@@ -329,8 +371,8 @@ export default function OurProducts() {
               transition={{ duration: 0.4 }}
               className="relative"
             >
-              {/* Background Blob for current program */}
-              <div 
+              {/* Background Blob */}
+              <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[120%] opacity-[0.08] blur-3xl rounded-full pointer-events-none transition-colors duration-500"
                 style={{ backgroundColor: activeProgram.color }}
               />
@@ -339,7 +381,7 @@ export default function OurProducts() {
                 <div className="inline-block border-2 border-black px-4 py-1.5 rounded-full font-bold uppercase tracking-widest text-xs bg-white mb-2" style={{ boxShadow: "2px 2px 0px #000" }}>
                   Trait: {activeProgram.trait}
                 </div>
-                <h3 
+                <h3
                   className="font-pipanganan text-4xl md:text-5xl uppercase leading-none drop-shadow-[2px_2px_0px_rgba(0,0,0,0.1)] transition-colors duration-500"
                   style={{ color: activeProgram.color }}
                 >
@@ -349,7 +391,7 @@ export default function OurProducts() {
 
               {/* Grid for Incoming / Outgoing */}
               <div className="grid md:grid-cols-2 gap-8 relative z-10">
-                
+
                 {/* Incoming Card */}
                 <div className="group relative h-full flex flex-col">
                   <div className="absolute inset-0 translate-x-[6px] translate-y-[6px] bg-black rounded-3xl" />
@@ -368,7 +410,7 @@ export default function OurProducts() {
                     <p className="text-gray-600 font-medium leading-relaxed mb-8 flex-grow">
                       {activeProgram.incoming.desc}
                     </p>
-                    <button 
+                    <button
                       onClick={() => handleActionClick("Incoming")}
                       className="w-full text-white font-barabara text-sm md:text-base py-3 rounded-xl uppercase tracking-widest border-2 border-black flex items-center justify-center gap-2 hover:bg-black transition-colors"
                       style={{ backgroundColor: activeProgram.color, boxShadow: "4px 4px 0px #000" }}
@@ -396,7 +438,7 @@ export default function OurProducts() {
                     <p className="text-gray-600 font-medium leading-relaxed mb-8 flex-grow">
                       {activeProgram.outgoing.desc}
                     </p>
-                    <button 
+                    <button
                       onClick={() => handleActionClick("Outgoing")}
                       className="w-full text-black font-barabara text-sm md:text-base py-3 rounded-xl uppercase tracking-widest border-2 border-black flex items-center justify-center gap-2 bg-white transition-colors hover:bg-gray-50"
                       style={{ boxShadow: `4px 4px 0px ${activeProgram.color}` }}
@@ -416,15 +458,15 @@ export default function OurProducts() {
       <section ref={databaseRef} className="py-24 px-6 relative z-10 scroll-mt-20">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white border-4 border-black rounded-3xl p-6 md:p-10 shadow-[8px_8px_0px_#000]">
-            
+
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
               <div>
                 <h2 className="font-pipanganan text-4xl text-black uppercase tracking-wide mb-2">
-                  Opportunity <span className="text-[#037ef3]">Database</span>
+                  Search for <span className="text-[#037ef3]">Opportunities</span>
                 </h2>
                 <p className="text-gray-600 font-medium">Explore and filter all available opportunities below.</p>
               </div>
-              
+
               {/* Search Bar */}
               <div className="w-full md:w-auto relative group">
                 <div className="absolute inset-0 translate-x-[3px] translate-y-[3px] bg-black rounded-xl" />
@@ -432,8 +474,8 @@ export default function OurProducts() {
                   <div className="pl-4 pr-2 py-3 bg-white">
                     <Search size={20} className="text-gray-400" />
                   </div>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="Search by title or location..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -483,59 +525,79 @@ export default function OurProducts() {
 
             {/* Data Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence>
-                {filteredOpportunities.length > 0 ? (
-                  filteredOpportunities.map((opp) => (
-                    <motion.div
-                      layout
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.2 }}
-                      key={opp.id}
-                      className="group relative"
-                    >
-                      <div className="absolute inset-0 translate-x-[4px] translate-y-[4px] bg-black rounded-xl transition-transform" />
-                      <div className="relative bg-white border-2 border-black p-5 rounded-xl h-full flex flex-col hover:-translate-y-1 hover:-translate-x-1 transition-transform">
-                        
-                        <div className="flex justify-between items-start mb-4">
-                          <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 border-2 border-black rounded-md ${
-                            opp.program === "Volunteer" ? "bg-[#EF3340] text-white" : 
-                            opp.program === "Talent" ? "bg-[#52BCC6] text-white" : 
-                            "bg-[#F58220] text-white"
-                          }`}>
-                            {opp.program}
-                          </span>
-                          <span className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
-                            {opp.direction === "Incoming" ? <PlaneLanding size={14}/> : <PlaneTakeoff size={14}/>}
-                            {opp.direction}
-                          </span>
-                        </div>
+              {/* Loading State */}
+              {loading && (
+                <div className="col-span-full py-16 flex flex-col items-center justify-center gap-4">
+                  <Loader2 size={40} className="text-[#037ef3] animate-spin" />
+                  <p className="text-gray-500 font-medium">Loading opportunities...</p>
+                </div>
+              )}
 
-                        <h4 className="font-bold text-lg mb-2 leading-tight">{opp.title}</h4>
-                        
-                        <div className="flex items-center gap-1 text-gray-600 mb-6 flex-grow">
-                          <MapPin size={16} />
-                          <span className="text-sm font-medium">{opp.location}</span>
-                        </div>
+              {/* Error State */}
+              {!loading && error && (
+                <div className="col-span-full py-12 text-center border-2 border-dashed border-red-300 rounded-xl">
+                  <p className="text-red-500 font-bold">{error}</p>
+                </div>
+              )}
 
-                        <a 
-                          href={opp.link}
-                          className="mt-auto w-full border-2 border-black py-2 rounded-lg font-bold text-sm uppercase flex items-center justify-center gap-2 hover:bg-black hover:text-[#FFD100] transition-colors"
-                        >
-                          Go to Opportunity <ExternalLink size={16} />
-                        </a>
-                      </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full py-12 text-center border-2 border-dashed border-gray-300 rounded-xl">
-                    <Search size={40} className="mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-xl font-bold text-gray-400">No opportunities found</h3>
-                    <p className="text-gray-500 mt-2">Try adjusting your filters or search query.</p>
-                  </div>
-                )}
-              </AnimatePresence>
+              {/* Results */}
+              {!loading && !error && (
+                <AnimatePresence>
+                  {filteredOpportunities.length > 0 ? (
+                    filteredOpportunities.map((opp) => (
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.2 }}
+                        key={opp.id}
+                        className="group relative"
+                      >
+                        <div className="absolute inset-0 translate-x-[4px] translate-y-[4px] bg-black rounded-xl transition-transform" />
+                        <div className="relative bg-white border-2 border-black p-5 rounded-xl h-full flex flex-col hover:-translate-y-1 hover:-translate-x-1 transition-transform">
+
+                          <div className="flex justify-between items-start mb-4">
+                            <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 border-2 border-black rounded-md ${
+                              opp.program === "Volunteer" ? "bg-[#EF3340] text-white" :
+                              opp.program === "Talent" ? "bg-[#52BCC6] text-white" :
+                              "bg-[#F58220] text-white"
+                            }`}>
+                              {opp.program}
+                            </span>
+                            <span className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                              {opp.direction === "Incoming" ? <PlaneLanding size={14}/> : <PlaneTakeoff size={14}/>}
+                              {opp.direction}
+                            </span>
+                          </div>
+
+                          <h4 className="font-bold text-lg mb-2 leading-tight">{opp.title}</h4>
+
+                          <div className="flex items-center gap-1 text-gray-600 mb-6 flex-grow">
+                            <MapPin size={16} />
+                            <span className="text-sm font-medium">{opp.location}</span>
+                          </div>
+
+                          <a
+                            href={opp.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-auto w-full border-2 border-black py-2 rounded-lg font-bold text-sm uppercase flex items-center justify-center gap-2 hover:bg-black hover:text-[#FFD100] transition-colors"
+                          >
+                            Go to Opportunity <ExternalLink size={16} />
+                          </a>
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="col-span-full py-12 text-center border-2 border-dashed border-gray-300 rounded-xl">
+                      <Search size={40} className="mx-auto text-gray-300 mb-4" />
+                      <h3 className="text-xl font-bold text-gray-400">No opportunities found</h3>
+                      <p className="text-gray-500 mt-2">Try adjusting your filters or search query.</p>
+                    </div>
+                  )}
+                </AnimatePresence>
+              )}
             </div>
 
           </div>
