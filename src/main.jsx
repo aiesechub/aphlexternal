@@ -11,7 +11,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App"; // Your existing public site
 import JoinUs from "./JoinUs";
 import PartnerWithUs from "./PartnerWithUs";
-import AdminApp from "./admin/AdminApp";
+import OurProducts from "./OurProducts";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -21,10 +21,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         {/* Public website */}
         <Route path="/" element={<App />} />
         <Route path="/join" element={<JoinUs />} />
+        <Route path="/products" element={<OurProducts />} />
         <Route path="/partner" element={<PartnerWithUs />} />
-
-        {/* Admin dashboard — protected by Supabase auth inside AdminApp */}
-        <Route path="/admin/*" element={<AdminApp />} />
 
         {/* 404 fallback */}
         <Route path="*" element={<App />} />

@@ -72,11 +72,10 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const phase = React.useContext(IntroContext);
   const navLinks = [
-    { name: "Why Philippines", href: "#" },
     {
       name: "Join AIESEC",
       href: "/join",
-    },
+    }, { name: "AIESEC Products", href: "/products" },
     { name: "Partner with Us", href: "/partner" },
   ];
   const tilts = ["-rotate-2", "rotate-1", "-rotate-1"];
@@ -1376,12 +1375,11 @@ const Programs = () => {
                 The Spirit of <br /> Bayanihan
               </h3>
               <p className="text-gray-700 mb-8 flex-grow">
-                Experience the Filipino culture of communal unity. Volunteer to
-                help communities lift each other up.
+                
               </p>
-              <button className="w-full bg-[#EF3340] text-white font-pipanganan text-xl py-3 rounded-lg uppercase border-2 border-[#EF3340] hover:bg-white hover:text-[#EF3340] transition-all shadow-md">
+              <Link to="/products?program=Volunteer" className="w-full bg-[#EF3340] text-white font-pipanganan text-xl py-3 rounded-lg uppercase border-2 border-[#EF3340] hover:bg-white hover:text-[#EF3340] transition-all shadow-md text-center">
                 Start Volunteering
-              </button>
+              </Link>
             </div>
           </motion.div>
           <motion.div
@@ -1400,12 +1398,11 @@ const Programs = () => {
                 Innovate with <br /> Diskarte
               </h3>
               <p className="text-gray-700 mb-8 flex-grow">
-                Showcase your Filipino resourcefulness in a global professional
-                setting.
+                
               </p>
-              <button className="w-full bg-[#52BCC6] text-white font-pipanganan text-xl py-3 rounded-lg uppercase border-2 border-[#52BCC6] hover:bg-white hover:text-[#009BD6] transition-all shadow-md">
+              <Link to="/products?program=Talent" className="w-full bg-[#52BCC6] text-white font-pipanganan text-xl py-3 rounded-lg uppercase border-2 border-[#52BCC6] hover:bg-white hover:text-[#009BD6] transition-all shadow-md text-center">
                 Find Opportunities
-              </button>
+              </Link>
             </div>
           </motion.div>
           <motion.div
@@ -1424,12 +1421,11 @@ const Programs = () => {
                 Nurture with <br /> Pag-aaruga
               </h3>
               <p className="text-gray-700 mb-8 flex-grow">
-                Embody the Filipino trait of nurturing care and foster growth in
-                classrooms abroad.
+                
               </p>
-              <button className="w-full bg-[#F58220] text-white font-pipanganan text-xl py-3 rounded-lg uppercase border-2 border-[#F58220] hover:bg-white hover:text-[#F58220] transition-all shadow-md">
+              <Link to="/products?program=Teacher" className="w-full bg-[#F58220] text-white font-pipanganan text-xl py-3 rounded-lg uppercase border-2 border-[#F58220] hover:bg-white hover:text-[#F58220] transition-all shadow-md text-center">
                 Start Teaching
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -1478,10 +1474,10 @@ const Footer = () => (
             </p>
             <div className="flex flex-wrap gap-3">
               {[
-                { Icon: Mail, text: "hello@aiesecph.org" },
+                { Icon: Mail, text: "philippines@aiesec.ph" },
                 {
                   Icon: MapPin,
-                  text: "Unit 201, Example Building, Metro Manila",
+                  text: "7F, Finman Centre Building, 131 Tordesillas, Salcedo Village, Makati",
                 },
               ].map(({ Icon, text }, i) => (
                 <div
@@ -1556,9 +1552,7 @@ const Footer = () => (
             </div>
             <div className="space-y-1.5">
               {[
-                { label: "Privacy Notice", href: "#" },
-                { label: "Cookie Policy", href: "#" },
-                { label: "Terms of Service", href: "#" },
+
               ].map(({ label, href }) => (
                 <a
                   key={label}
@@ -1589,7 +1583,7 @@ const Footer = () => (
           </div>
           <p className="flex items-center gap-2 text-xs text-gray-400 flex-wrap justify-center">
             <span className="text-black text-xs font-bold">
-              © 2026 AIESEC Philippines.
+              © 2026 AIESEC in the Philippines.
             </span>
             <span className="hidden md:inline text-gray-200">|</span>
             <span>
