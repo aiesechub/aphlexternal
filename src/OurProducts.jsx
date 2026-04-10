@@ -198,7 +198,6 @@ export default function OurProducts() {
 
   // Database Filters States
   const [dbProgramFilter, setDbProgramFilter] = useState("Volunteer");
-  const [dbDirectionFilter, setDbDirectionFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Supabase data states
@@ -250,7 +249,6 @@ export default function OurProducts() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const programQuery = searchParams.get("program");
-    const directionQuery = searchParams.get("direction");
     const searchQueryParam = searchParams.get("search");
 
     if (programQuery) {
@@ -264,15 +262,6 @@ export default function OurProducts() {
       }
     }
 
-    if (directionQuery) {
-      const normalized = directionQuery.toLowerCase();
-      if (["all", "incoming", "outgoing"].includes(normalized)) {
-        setDbDirectionFilter(
-          normalized.charAt(0).toUpperCase() + normalized.slice(1),
-        );
-      }
-    }
-
     if (searchQueryParam) {
       setSearchQuery(searchQueryParam);
     }
@@ -282,7 +271,6 @@ export default function OurProducts() {
   const handleTabChange = (index) => {
     setActiveTab(index);
     setDbProgramFilter(programsData[index].shortTitle);
-    setDbDirectionFilter("All");
   };
 
   // Handle Card Action Clicks
@@ -295,7 +283,7 @@ export default function OurProducts() {
   // Filter Logic
   const filteredOpportunities = opportunities.filter((opp) => {
     const matchesProgram = dbProgramFilter === "All" || opp.program === dbProgramFilter;
-    const matchesDirection = dbDirectionFilter === "All" || opp.direction === dbDirectionFilter;
+    const matchesDirection = true;
     const matchesSearch =
       opp.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       opp.location.toLowerCase().includes(searchQuery.toLowerCase());
@@ -439,7 +427,7 @@ export default function OurProducts() {
                       {activeProgram.outgoing.desc}
                     </p>
                     <button
-                      onClick={() => handleActionClick("Outgoing")}
+                      onClick={() => window.open('https://aiesec.org/search', '_blank')}
                       className="w-full text-black font-barabara text-sm md:text-base py-3 rounded-xl uppercase tracking-widest border-2 border-black flex items-center justify-center gap-2 bg-white transition-colors hover:bg-gray-50"
                       style={{ boxShadow: `4px 4px 0px ${activeProgram.color}` }}
                     >
@@ -462,7 +450,7 @@ export default function OurProducts() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
               <div>
                 <h2 className="font-pipanganan text-4xl text-black uppercase tracking-wide mb-2">
-                  Search for <span className="text-[#037ef3]">Opportunities</span>
+                  Search for <span className="text-[#037ef3]">PH Opportunities</span>
                 </h2>
                 <p className="text-gray-600 font-medium">Explore and filter all available opportunities below.</p>
               </div>
@@ -490,33 +478,16 @@ export default function OurProducts() {
               <div className="flex items-center gap-2">
                 <Filter size={18} className="text-gray-500" />
                 <span className="font-bold uppercase tracking-wider text-sm mr-2">Program:</span>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex bg-gray-100 border-2 border-black rounded-lg p-1">
                   {["All", "Volunteer", "Talent", "Teacher"].map((prog) => (
                     <button
                       key={prog}
                       onClick={() => setDbProgramFilter(prog)}
-                      className={`px-4 py-1.5 border-2 border-black rounded-full text-xs font-bold uppercase transition-all ${
-                        dbProgramFilter === prog ? "bg-black text-[#FFD100] shadow-[2px_2px_0px_#FFD100]" : "bg-white text-black hover:bg-gray-100"
+                      className={`px-4 py-1.5 rounded-md text-xs font-bold uppercase transition-all ${
+                        dbProgramFilter === prog ? "bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black" : "text-gray-500 hover:text-black border-2 border-transparent"
                       }`}
                     >
                       {prog}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 md:ml-auto">
-                <span className="font-bold uppercase tracking-wider text-sm mr-2">Direction:</span>
-                <div className="flex bg-gray-100 border-2 border-black rounded-lg p-1">
-                  {["All", "Incoming", "Outgoing"].map((dir) => (
-                    <button
-                      key={dir}
-                      onClick={() => setDbDirectionFilter(dir)}
-                      className={`px-4 py-1.5 rounded-md text-xs font-bold uppercase transition-all ${
-                        dbDirectionFilter === dir ? "bg-white border-2 border-black shadow-[2px_2px_0px_#000] text-black" : "text-gray-500 hover:text-black border-2 border-transparent"
-                      }`}
-                    >
-                      {dir}
                     </button>
                   ))}
                 </div>
