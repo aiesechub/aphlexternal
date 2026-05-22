@@ -1128,7 +1128,6 @@ const JeepneyMarquee = () => {
       est: "1859",
       address: "Katipunan Ave, Quezon City",
     },
-    { text: "UA&P PASIG", est: "1967", address: "Pearl Drive, Ortigas, Pasig" },
     {
       text: "UP LOS BAÑOS",
       est: "1909",
