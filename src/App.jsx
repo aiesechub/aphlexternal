@@ -75,7 +75,7 @@ const Navbar = () => {
     {
       name: "Join AIESEC",
       href: "/join",
-    }, { name: "AIESEC Products", href: "/products" },
+    }, { name: "Explore Opportunities", href: "/products" },
     { name: "Partner with Us", href: "/partner" },
   ];
   const tilts = ["-rotate-2", "rotate-1", "-rotate-1"];
@@ -946,7 +946,7 @@ const WhyGoGlobal = () => {
             title="THE FAMILY"
             filipinoTrait="Pakikisama"
             emoji="🤝"
-            description="Make friends from 100+ countries. You won't just be a tourist; you'll be part of a global barkada that lasts a lifetime."
+            description="Make friends from 100+ countries and territories. You won't just be a tourist; you'll be part of a global barkada that lasts a lifetime."
             icon={Users}
             frontBg="#7B2FF7"
             backBg="#1a0533"

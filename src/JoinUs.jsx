@@ -237,12 +237,13 @@ export default function JoinUs() {
                 ))}
               </div>
 
-              <Link 
-                to="/apply-membership"
-                className="w-full bg-black text-white font-barabara py-5 rounded-2xl uppercase tracking-[0.2em] text-center border-2 border-black hover:bg-[#037ef3] transition-colors shadow-[6px_6px_0px_#FFD100]"
+              <button
+                type="button"
+                disabled
+                className="w-full bg-gray-300 text-gray-600 font-barabara py-5 rounded-2xl uppercase tracking-[0.2em] text-center border-2 border-gray-400 shadow-none cursor-not-allowed"
               >
-                Apply for Membership
-              </Link>
+                Coming Soon
+              </button>
             </div>
           </motion.div>
 
