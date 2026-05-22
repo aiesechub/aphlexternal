@@ -25,7 +25,7 @@ const Navbar = ({ currentPage = "Join Us" }) => {
 
   const navLinks = [
     { name: "Join AIESEC", href: "/join" },
-    { name: "AIESEC Products", href: "/products" },
+    { name: "Explore Opportunities", href: "/products" },
     { name: "Partner with Us", href: "/partner" },
   ];
 

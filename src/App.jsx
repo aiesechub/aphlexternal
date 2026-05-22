@@ -1153,7 +1153,7 @@ const JeepneyMarquee = () => {
             </div>
             <div>
               <h3 className="font-cubao text-5xl text-white leading-none tracking-wide drop-shadow-[2px_2px_0px_#000]">
-                9 <span className="text-[#009BD6]">Local Committee</span>
+                8 <span className="text-[#009BD6]">Local Committee</span>
               </h3>
               <p className="text-gray-400 text-sm tracking-widest uppercase">
                 Local Chapters Nationwide

@@ -16,13 +16,13 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
-const Navbar = ({ currentPage = "AIESEC Products" }) => {
+const Navbar = ({ currentPage = "Explore Opportunities" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   const navLinks = [
     { name: "Join AIESEC", href: "/join" },
-    { name: "AIESEC Products", href: "/products" },
+    { name: "Explore Opportunities", href: "/products" },
     { name: "Partner with Us", href: "/partner" },
   ];
 
@@ -293,7 +293,7 @@ export default function OurProducts() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden font-sans">
-      <Navbar currentPage="AIESEC Products" />
+      <Navbar currentPage="Explore Opportunities" />
 
       {/* Subtle Dot Pattern Overlay */}
       <div
